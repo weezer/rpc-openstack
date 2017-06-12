@@ -118,6 +118,30 @@
                     rbd_secret_uuid: "{%raw%}{{ cinder_ceph_client_uuid }}{%endraw%}"
       when: "{{ rpco_deploy_ceph | bool }}"
 
+    # We need to write out a specific log_hosts block so that we can set
+    # the required kernel parameters for the ELK components to startup.
+    - name: Write out log_hosts config so kernel tuning
+      lineinfile:
+        name: "/etc/openstack_deploy/conf.d/log_hosts.yml"
+        create: "yes"
+        line: |
+          ---
+          log_hosts:
+            aio1:
+              ip: 172.29.236.100
+              container_vars:
+                openstack_user_kernel_options:
+                  - { key: 'vm.max_map_count', value: 262144 }
+                  - { key: 'vm.mmap_min_addr', value: 65536 }
+                  - { key: 'kernel.kptr_restrict', value: 1 }
+                  - { key: 'net.ipv4.tcp_syncookies', value: 1 }
+                  - { key: 'kernel.sysrq', value: 176 }
+                  - { key: 'fs.protected_hardlinks', value: 1 }
+                  - { key: 'fs.protected_symlinks', value: 1 }
+                  - { key: 'kernel.yama.ptrace_scope', value: 1 }
+                  - { key: 'kernel.printk', value: '4 4 1 7' }
+      when: "{{ rpco_deploy_elk | bool }}"
+
     - name: Ensure that the env.d directory is present
       file:
         path: "/etc/openstack_deploy/env.d"
