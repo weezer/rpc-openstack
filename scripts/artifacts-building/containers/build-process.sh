@@ -162,10 +162,10 @@ openstack-ansible containers/artifact-build-chroot.yml \
 
 # Build the list of roles to build containers for
 role_list=""
-role_list="${role_list} memcached_server os_cinder os_glance os_heat os_horizon"
-role_list="${role_list} os_ironic os_keystone os_neutron os_nova os_swift os_tempest"
-role_list="${role_list} rabbitmq_server repo_server rpc-role-elasticsearch"
-role_list="${role_list} rpc-role-kibana rpc-role-logstash rsyslog_server"
+role_list="${role_list} ansible-elasticsearch memcached_server os_cinder os_glance"
+role_list="${role_list} os_heat os_horizon os_ironic os_keystone os_neutron os_nova"
+role_list="${role_list} os_swift os_tempest rabbitmq_server repo_server rpc-role-kibana"
+role_list="${role_list} rpc-role-logstash rsyslog_server"
 
 # Build all the containers
 for cnt in ${role_list}; do
