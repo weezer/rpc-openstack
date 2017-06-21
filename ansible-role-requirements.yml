@@ -14,10 +14,6 @@
   scm: git
   src: https://github.com/rsoprivatecloud/openstack-ops
   version: f87406880f67584b5fe562d2711734bbd63c0fdb
-- name: os_octavia
-  scm: git
-  src: https://github.com/openstack/openstack-ansible-os_octavia.git
-  version: master
 - name: rpc_maas
   scm: git
   src: https://github.com/rcbops/rpc-maas
