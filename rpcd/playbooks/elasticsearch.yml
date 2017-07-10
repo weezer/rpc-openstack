@@ -57,17 +57,17 @@
         - elasticsearch-pre-install
   roles:
     - role: "ansible-elasticsearch"
-      es_instance_name: "openstack",
-      es_data_dirs: "/var/lib/elasticsearch",
-      es_log_dir: "/var/log/elasticsearch",
+      es_instance_name: "openstack"
+      es_data_dirs: "/var/lib/elasticsearch"
+      es_log_dir: "/var/log/elasticsearch"
       es_config:
-        node.name: "{{ container_name }}",
-        cluster.name: "openstack",
-        http.port: 9200,
-        transport.tcp.port: 9300,
-        node.data: true,
-        node.master: true,
-        bootstrap.memory_lock: true,
+        node.name: "{{ container_name }}"
+        cluster.name: "openstack"
+        http.port: 9200
+        transport.tcp.port: 9300
+        node.data: true
+        node.master: true
+        bootstrap.memory_lock: true
         network.host: "{{ container_address }}"
   vars:
     is_metal: "{{ properties.is_metal | default(False) }}"
