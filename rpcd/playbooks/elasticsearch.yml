@@ -56,7 +56,7 @@
       tags:
         - elasticsearch-pre-install
   roles:
-    - role: "ansible-elasticsearch",
+    - role: "ansible-elasticsearch"
       es_instance_name: "openstack",
       es_data_dirs: "/var/lib/elasticsearch",
       es_log_dir: "/var/log/elasticsearch",
