@@ -3,32 +3,27 @@
 set -e -u -x
 set -o pipefail
 
+## Functions -----------------------------------------------------------------
+export BASE_DIR=${BASE_DIR:-"/opt/rpc-openstack"}
+source ${BASE_DIR}/scripts/functions.sh
+
 export ADMIN_PASSWORD=${ADMIN_PASSWORD:-"secrete"}
 export DEPLOY_AIO=${DEPLOY_AIO:-"no"}
 export DEPLOY_HAPROXY=${DEPLOY_HAPROXY:-"no"}
 export DEPLOY_OA=${DEPLOY_OA:-"yes"}
-export DEPLOY_ELK=${DEPLOY_ELK:-"yes"}
-export DEPLOY_MAAS=${DEPLOY_MAAS:-"no"}
 export DEPLOY_TEMPEST=${DEPLOY_TEMPEST:-"no"}
 export DEPLOY_CEILOMETER="no"
 export DEPLOY_CEPH=${DEPLOY_CEPH:-"no"}
 export DEPLOY_SWIFT=${DEPLOY_SWIFT:-"yes"}
 export DEPLOY_HARDENING=${DEPLOY_HARDENING:-"no"}
 export DEPLOY_RPC=${DEPLOY_RPC:-"yes"}
-export FORKS=${FORKS:-$(grep -c ^processor /proc/cpuinfo)}
-export ANSIBLE_PARAMETERS=${ANSIBLE_PARAMETERS:-""}
 export ANSIBLE_FORCE_COLOR=${ANSIBLE_FORCE_COLOR:-"true"}
 export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-""}
 export UNAUTHENTICATED_APT=${UNAUTHENTICATED_APT:-no}
 
 OA_DIR='/opt/rpc-openstack/openstack-ansible'
-RPCD_DIR='/opt/rpc-openstack/rpcd'
 RPCD_VARS='/etc/openstack_deploy/user_extras_variables.yml'
 RPCD_SECRETS='/etc/openstack_deploy/user_extras_secrets.yml'
-
-function run_ansible {
-  openstack-ansible ${ANSIBLE_PARAMETERS} --forks ${FORKS} $@
-}
 
 # Confirm OA_DIR is properly checked out
 submodulestatus=$(git submodule status ${OA_DIR})
@@ -272,33 +267,24 @@ function run_lock {
 
 
 if [[ "${DEPLOY_RPC}" == "yes" ]]; then
-  # begin the RPC installation
   pushd  ${RPCD_DIR}/playbooks
 
   # configure everything for RPC support access
-    RUN_TASKS+=("rpc-support.yml")
+    export DEPLOY_SUPPORT_ROLE="yes"
+
+  # begin the RPC installation
+    bash ${BASE_DIR}/scripts/deploy-rpc-playbooks.sh
 
   # configure the horizon extensions
     RUN_TASKS+=("horizon_extensions.yml")
 
-  # deploy and configure RAX MaaS
-    if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
-      RUN_TASKS+=("setup-maas.yml")
-    fi
-
   # deploy and configure the ELK stack
     if [[ "${DEPLOY_ELK}" == "yes" ]]; then
-      RUN_TASKS+=("setup-logging.yml")
 
     # deploy the LB required for the ELK stack
       if [[ "${DEPLOY_HAPROXY}" == "yes" ]]; then
         RUN_TASKS+=(" haproxy.yml")
       fi
-    fi
-
-  # verify RAX MaaS
-    if [[ "${DEPLOY_MAAS}" == "yes" ]]; then
-      RUN_TASKS+=("verify-maas.yml")
     fi
 
     for item in ${!RUN_TASKS[@]}; do
